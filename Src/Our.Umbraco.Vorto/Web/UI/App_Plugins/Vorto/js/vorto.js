@@ -5,15 +5,14 @@
     'umbPropEditorHelper',
     'Our.Umbraco.Resources.Vorto.vortoResources',
     function ($scope, $rootScope, editorState, umbPropEditorHelper, vortoResources) {
-
-        $scope.model.hideLabel = $scope.model.config.hideLabel == 1;
-
         $scope.languages = [];
         $scope.pinnedLanguages = [];
         $scope.$rootScope = $rootScope;
 
         $scope.currentLanguage = undefined;
         $scope.activeLanguage = undefined;
+
+        $scope.model.hideLabel = $scope.model.config.hideLabel == 1;
 
         $scope.property = {
             config: {},
@@ -154,7 +153,7 @@ angular.module("umbraco.directives").directive('vortoProperty',
                 var obj = {};
                 obj[scope.language] = newValue;
                 scope.$emit('languageValueChange', obj);
-            });
+            }, true);
         };
 
         return {
