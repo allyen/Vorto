@@ -48,8 +48,13 @@
                 .find(".vorto-menu").hide();
         };
 
-        $scope.setActiveLanguage = function (language) {
+        $scope.setActiveLanguage = function (language, dontBroadcast) {
             $scope.activeLanguage = language;
+
+            // Broadcast
+            if (!dontBroadcast && $rootScope.vortoSyncAll) {
+                $rootScope.$broadcast("syncActiveLanguage", language);
+            };
         };
 
         $scope.pinLanguage = function (language) {
@@ -82,6 +87,10 @@
             $scope.setCurrentLanguage(language, true);
         });
 
+        $scope.$on("syncActiveLanguage", function (evt, language) {
+            $scope.setActiveLanguage(language, true);
+        });
+
         // Load the datatype
         vortoResources.getDataTypeById($scope.model.config.dataType.guid).then(function (dataType) {
 
@@ -98,19 +107,27 @@
             $scope.property.viewPath = umbPropEditorHelper.getViewPath(dataType.view);
 
             // Get the current properties datatype
-            vortoResources.getDataTypeByAlias(editorState.current.contentTypeAlias, $scope.model.alias).then(function (dataType2) {
-
-                $scope.model.value.dtdguid = dataType2.guid;
+            if ($scope.model.dataTypeGuid) {
+                // we're in archetype
+                getLanguages($scope.model.dataTypeGuid);
+            } else {
+                vortoResources.getDataTypeByAlias(editorState.current.contentTypeAlias, $scope.model.alias).then(function (dataType2) {
+                    getLanguages(dataType2.guid);
+                });
+            }
+            function getLanguages(dtdguid) {
+                $scope.model.value.dtdguid = dtdguid;
 
                 // Load the languages (this will trigger everything else to bind)
-                vortoResources.getLanguages(editorState.current.id, editorState.current.parentId, dataType2.guid)
+                vortoResources.getLanguages(editorState.current.id, editorState.current.parentId, dtdguid)
                     .then(function (languages) {
                         $scope.languages = languages;
-                        $scope.currentLanguage = $scope.activeLanguage = _.find(languages, function(itm) {
+                        $scope.currentLanguage = $scope.activeLanguage = _.find(languages, function (itm) {
                             return itm.isDefault;
                         });
+                        $scope.pinnedLanguages = _.filter(languages, function (l) { return l != $scope.currentLanguage; });
                     });
-            });
+            }
         });
 
         
@@ -243,3 +260,9 @@ $(function() {
     });
 
 });
+
+var Vorto = {
+    formatVortoValue: function (value) {
+        return value.values.cs ? value.values.cs : value.values.en;
+    }
+};
