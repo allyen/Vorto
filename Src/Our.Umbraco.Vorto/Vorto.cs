@@ -17,7 +17,7 @@ namespace Our.Umbraco.Vorto
 
 		public static event EventHandler<FilterLanguagesEventArgs> FilterLanguages;
 
-        public static T GetVortoValue<T>(object value, string cultureName = null, T defaultValue = default(T))
+        public static T GetVortoValue<T>(object value, int dataTypeId, string cultureName = null, T defaultValue = default(T))
         {
             if (cultureName == null)
                 cultureName = Thread.CurrentThread.CurrentUICulture.Name;
@@ -33,7 +33,7 @@ namespace Our.Umbraco.Vorto
                 //	return (T)value;
 
                 // Get target datatype
-                var targetDataType = VortoHelper.GetTargetDataTypeDefinition(vortoModel.DtdGuid);
+                var targetDataType = VortoHelper.GetTargetDataTypeDefinition(dataTypeId);
 
                 // Umbraco has the concept of a IPropertyEditorValueConverter which it 
                 // also queries for property resolvers. However I'm not sure what these

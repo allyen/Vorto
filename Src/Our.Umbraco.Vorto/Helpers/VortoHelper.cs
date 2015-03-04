@@ -8,7 +8,7 @@ namespace Our.Umbraco.Vorto.Helpers
 {
 	internal static class VortoHelper
 	{
-		internal static IDataTypeDefinition GetTargetDataTypeDefinition(Guid myId)
+		internal static IDataTypeDefinition GetTargetDataTypeDefinition(int myId)
 		{
 			return (IDataTypeDefinition)ApplicationContext.Current.ApplicationCache.RuntimeCache.GetCacheItem(
 				Constants.CacheKey_GetTargetDataTypeDefinition + myId,

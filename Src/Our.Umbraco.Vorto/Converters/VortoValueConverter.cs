@@ -24,7 +24,9 @@ namespace Our.Umbraco.Vorto.Converters
 			{
 				if (source != null && !source.ToString().IsNullOrWhiteSpace())
 				{
-					return JsonConvert.DeserializeObject<VortoValue>(source.ToString());
+                    var value = JsonConvert.DeserializeObject<VortoValue>(source.ToString());
+                    value.DtdId = propertyType != null ? propertyType.DataTypeId : 0;
+                    return value;
 				}
 			}
 			catch (Exception e)

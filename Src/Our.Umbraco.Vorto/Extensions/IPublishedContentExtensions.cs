@@ -97,7 +97,7 @@ namespace Our.Umbraco.Vorto.Extensions
 				var prop = content.GetProperty(propertyAlias, recursive);
 				if (prop.Value is VortoValue)
 				{
-                    return Vorto.GetVortoValue<T>(prop.Value, cultureName, defaultValue);
+                    return Vorto.GetVortoValue<T>(prop.Value, (prop.Value as VortoValue).DtdId, cultureName, defaultValue);
 				}
 				
 				if (prop.Value is T)

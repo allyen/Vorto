@@ -92,7 +92,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 				{
 					var value = JsonConvert.DeserializeObject<VortoValue>(property.Value.ToString());
 
-					var dtd = VortoHelper.GetTargetDataTypeDefinition(value.DtdGuid);
+					var dtd = VortoHelper.GetTargetDataTypeDefinition(propertyType.DataTypeDefinitionId);
 					var propEditor = PropertyEditorResolver.Current.GetByAlias(dtd.PropertyEditorAlias);
 					var propType = new PropertyType(dtd);
 
@@ -104,7 +104,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 						value.Values[key] = newValue;
 					}
 
-					property.Value = JsonConvert.SerializeObject(value);
+					property.Value = value.SerializeForPersistence();
 				}
 				catch (Exception ex)
 				{
@@ -123,7 +123,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 				{
 					var value = JsonConvert.DeserializeObject<VortoValue>(property.Value.ToString());
 
-					var dtd = VortoHelper.GetTargetDataTypeDefinition(value.DtdGuid);
+                    var dtd = VortoHelper.GetTargetDataTypeDefinition(propertyType.DataTypeDefinitionId);
 					var propEditor = PropertyEditorResolver.Current.GetByAlias(dtd.PropertyEditorAlias);
 					var propType = new PropertyType(dtd);
 
@@ -154,7 +154,8 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 				{
 					var value = JsonConvert.DeserializeObject<VortoValue>(editorValue.Value.ToString());
 
-					var dtd = VortoHelper.GetTargetDataTypeDefinition(value.DtdGuid);
+                    var dataType = JsonConvert.DeserializeObject<DataTypeInfo>(editorValue.PreValues.FormatAsDictionary()["dataType"].Value);
+                    var dtd = ApplicationContext.Current.Services.DataTypeService.GetDataTypeDefinitionById(dataType.Guid);
 					var preValues = ApplicationContext.Current.Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtd.Id);
 					var propEditor = PropertyEditorResolver.Current.GetByAlias(dtd.PropertyEditorAlias);
 
