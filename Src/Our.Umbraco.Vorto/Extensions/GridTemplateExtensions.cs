@@ -17,17 +17,16 @@ namespace Our.Umbraco.Vorto.Extensions
     {
         public static MvcHtmlString GetVortoGridHtml<T>(this IPublishedContent contentItem, HtmlHelper html)
         {
-            return GetVortoGridHtml(contentItem, html, "bodyText", "bootstrap3");
+            return GetVortoGridHtml(contentItem, html, "bodyText", "Grid/bootstrap3");
         }
 
         public static MvcHtmlString GetVortoGridHtml(this IPublishedContent contentItem, HtmlHelper html, string propertyAlias)
         {
-            return GetVortoGridHtml(contentItem, html, propertyAlias, "bootstrap3");
+            return GetVortoGridHtml(contentItem, html, propertyAlias, "Grid/bootstrap3");
         }
 
-        public static MvcHtmlString GetVortoGridHtml(this IPublishedContent contentItem, HtmlHelper html, string propertyAlias, string framework)
+        public static MvcHtmlString GetVortoGridHtml(this IPublishedContent contentItem, HtmlHelper html, string propertyAlias, string view)
         {
-            var view = "Grid/" + framework;
             var model = contentItem.GetVortoValue(propertyAlias);
 
             return html.Partial(view, model, new ViewDataDictionary());
