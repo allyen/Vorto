@@ -17,7 +17,7 @@ namespace Our.Umbraco.Vorto
 
 		public static event EventHandler<FilterLanguagesEventArgs> FilterLanguages;
 
-        public static T GetVortoValue<T>(object value, int dataTypeId, string cultureName = null, T defaultValue = default(T))
+        public static T GetVortoValue<T>(object value, int dataTypeId, PublishedContentType contentType, string cultureName = null, T defaultValue = default(T))
         {
             if (cultureName == null)
                 cultureName = Thread.CurrentThread.CurrentUICulture.Name;
@@ -41,7 +41,7 @@ namespace Our.Umbraco.Vorto
                 // just ignoring these when looking up converters.
                 // NB: IPropertyEditorValueConverter not to be confused with
                 // IPropertyValueConverter which are the ones most people are creating
-                var properyType = CreateDummyPropertyType(targetDataType.Id, targetDataType.PropertyEditorAlias);
+                var properyType = CreateDummyPropertyType(targetDataType.Id, targetDataType.PropertyEditorAlias, contentType);
                 var converters = PropertyValueConvertersResolver.Current.Converters.ToArray();
 
                 // In umbraco, there are default value converters that try to convert the 
@@ -77,9 +77,9 @@ namespace Our.Umbraco.Vorto
             return defaultValue;
         }
 
-        private static PublishedPropertyType CreateDummyPropertyType(int dataTypeId, string propertyEditorAlias)
+        private static PublishedPropertyType CreateDummyPropertyType(int dataTypeId, string propertyEditorAlias, PublishedContentType contentType)
         {
-            return new PublishedPropertyType(null,
+            return new PublishedPropertyType(contentType,
                 new PropertyType(new DataTypeDefinition(-1, propertyEditorAlias)
                 {
                     Id = dataTypeId

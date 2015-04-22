@@ -19,7 +19,8 @@ using Umbraco.Web.PropertyEditors;
 
 namespace Our.Umbraco.Vorto.Web.PropertyEditors
 {
-	[PropertyEditorAsset(ClientDependencyType.Javascript, "/App_Plugins/Vorto/js/jquery.hoverIntent.minified.js", Priority = 1)]
+    [PropertyEditorAsset(ClientDependencyType.Javascript, "/App_Plugins/Vorto/js/jquery.cookie.js", Priority = 1)]
+    [PropertyEditorAsset(ClientDependencyType.Javascript, "/App_Plugins/Vorto/js/jquery.hoverIntent.minified.js", Priority = 1)]
 	[PropertyEditorAsset(ClientDependencyType.Javascript, "/App_Plugins/Vorto/js/vorto.js", Priority = 2)]
 	[PropertyEditorAsset(ClientDependencyType.Css, "/App_Plugins/Vorto/css/vorto.css", Priority = 2)]
 	[PropertyEditor("Our.Umbraco.Vorto", "Vorto", "/App_Plugins/Vorto/Views/vorto.html",
@@ -37,9 +38,10 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 		{
 			// Setup default values
 			_defaultPreValues = new Dictionary<string, object>
-            {
-                {"languageSource", "installed"}
-            };
+			{
+				{"languageSource", "installed"},
+				{"mandatoryBehaviour", "ignore"}
+			};
 		}
 
 		#region Pre Value Editor
@@ -63,8 +65,13 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 			[PreValueField("displayNativeNames", "Display Native Language Names", "boolean", Description = "Set whether to display language names in their native form.")]
 			public string DisplayNativeNames { get; set; }
 
-            [PreValueField("hideLabel", "Hide Label", "boolean",
-    Description = "Hide the Umbraco property title and description, making the Vorto span the entire page width")]
+			[PreValueField("primaryLanguage", "Primary Language", "/App_Plugins/Vorto/views/vorto.languagePicker.html", Description = "Select the primary language for this field.")]
+			public string PrimaryLanguage { get; set; }
+
+			[PreValueField("mandatoryBehaviour", "Mandatory Field Behaviour", "/App_Plugins/Vorto/views/vorto.mandatoryBehaviourPicker.html", Description = "Select how Vorto should handle mandatory fields.")]
+			public string MandatoryBehaviour { get; set; }
+
+            [PreValueField("hideLabel", "Hide Label", "boolean", Description = "Hide the Umbraco property title and description, making the Vorto span the entire page width")]
             public bool HideLabel { get; set; }
 		}
 
@@ -85,7 +92,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 
 			public override string ConvertDbToString(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
 			{
-				if (property.Value == null)
+				if (property.Value == null || property.Value.ToString().IsNullOrWhiteSpace())
 					return string.Empty;
 
 				try
@@ -116,7 +123,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 
 			public override object ConvertDbToEditor(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
 			{
-				if (property.Value == null)
+				if (property.Value == null || property.Value.ToString().IsNullOrWhiteSpace())
 					return string.Empty;
 
 				try
@@ -147,7 +154,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 
 			public override object ConvertEditorToDb(ContentPropertyData editorValue, object currentValue)
 			{
-				if (editorValue.Value == null)
+				if (editorValue.Value == null || editorValue.Value.ToString().IsNullOrWhiteSpace())
 					return string.Empty;
 
 				try
