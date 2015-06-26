@@ -360,6 +360,9 @@ angular.module("umbraco.directives").directive('vortoProperty',
 /* Resources */
 angular.module('umbraco.resources').factory('Our.Umbraco.Resources.Vorto.vortoResources',
     function ($q, $http, umbRequestHelper) {
+        var lastCachedDataType,
+            lastCachedLanguages;
+
         return {
             getNonVortoDataTypes: function () {
                 return umbRequestHelper.resourcePromise(
@@ -368,20 +371,25 @@ angular.module('umbraco.resources').factory('Our.Umbraco.Resources.Vorto.vortoRe
                 );
             },
             getDataTypeById: function (id) {
+                var url = "/umbraco/backoffice/VortoApi/VortoApi/GetDataTypeById?id=" + id;
+
                 return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/VortoApi/VortoApi/GetDataTypeById?id=" + id),
+                    $http.get(url, { cache: true }),
                     'Failed to retrieve datatype'
                 );
             },
             getDataTypeByAlias: function (contentType, contentTypeAlias, propertyAlias) {
+                var url = "/umbraco/backoffice/VortoApi/VortoApi/GetDataTypeByAlias?contentType=" + contentType + "&contentTypeAlias=" + contentTypeAlias + "&propertyAlias=" + propertyAlias;
                 return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/VortoApi/VortoApi/GetDataTypeByAlias?contentType=" + contentType + "&contentTypeAlias=" + contentTypeAlias + "&propertyAlias=" + propertyAlias),
+                    $http.get(url, { cache: true }),
                     'Failed to retrieve datatype'
                 );
             },
             getLanguages: function (section, id, parentId, dtdguid) {
+                var url = "/umbraco/backoffice/VortoApi/VortoApi/GetLanguages?section=" + section + "&id=" + id + "&parentId=" + parentId + "&dtdguid=" + dtdguid;
+
                 return umbRequestHelper.resourcePromise(
-                    $http.get("/umbraco/backoffice/VortoApi/VortoApi/GetLanguages?section=" + section + "&id=" + id + "&parentId=" + parentId + "&dtdguid=" + dtdguid),
+                    $http.get(url, { cache: true }),
                     'Failed to retrieve languages'
                 );
             },
