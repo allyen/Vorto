@@ -1,18 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using Our.Umbraco.Vorto.Models;
 using System.Threading;
-using Newtonsoft.Json;
-using Our.Umbraco.Vorto.Helpers;
-using Our.Umbraco.Vorto.Models;
 using Umbraco.Core;
 using Umbraco.Core.Models;
-using Umbraco.Core.Models.PublishedContent;
-using Umbraco.Core.PropertyEditors;
 using Umbraco.Web;
 
 namespace Our.Umbraco.Vorto.Extensions
 {
-	public static class IPublishedContentExtensions
+    public static class IPublishedContentExtensions
 	{
 		#region HasValue
 
@@ -29,7 +23,8 @@ namespace Our.Umbraco.Vorto.Extensions
 			if (prop.Value is VortoValue)
 			{
 				var vortoModel = prop.Value as VortoValue;
-				if (!vortoModel.Values.ContainsKey(cultureName) || vortoModel.Values[cultureName] == null
+				if (vortoModel.Values == null || !vortoModel.Values.ContainsKey(cultureName)
+                    || vortoModel.Values[cultureName] == null
 					|| vortoModel.Values[cultureName].ToString().IsNullOrWhiteSpace())
 						return false;
 			}
