@@ -62,6 +62,9 @@
                 $rootScope.$broadcast("reSync");
 
             } else {
+                if (language) {
+                    language.loadEditor = true;
+                }
                 $scope.activeLanguage = language;
             }
         };
@@ -346,7 +349,7 @@ angular.module("umbraco.directives").directive('vortoProperty',
             restrict: "E",
             rep1ace: true,
             link: link,
-            templateUrl: 'views/directives/umb-editor.html',
+            template: '<div ng-include="propertyEditorView"></div>',
             scope: {
                 propertyEditorView: '=view',
                 config: '=',

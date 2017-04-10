@@ -14,7 +14,8 @@
         <div ng-class="languages.length > 1 ? 'vorto-property' : ''"
              ng-repeat="language in languages"
              ng-show="activeLanguage.isoCode == language.isoCode">
-            <vorto-property view="property.viewPath" config="property.config" language="language.isoCode" property-alias="model.alias" value="model.value.values[language.isoCode]"></vorto-property>
+            <vorto-property view="property.viewPath" config="property.config" language="language.isoCode" property-alias="model.alias" value="model.value.values[language.isoCode]"
+                            ng-if="language.loadEditor"></vorto-property>
         </div>
 
     </div>
