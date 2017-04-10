@@ -8,10 +8,11 @@ using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.Models.PublishedContent;
 using Umbraco.Core.PropertyEditors;
+using Umbraco.Web;
 
 namespace Our.Umbraco.Vorto
 {
-	public static class Vorto
+    public static class Vorto
 	{
 		#region Event Handlers
 
@@ -42,6 +43,19 @@ namespace Our.Umbraco.Vorto
                 // NB: IPropertyEditorValueConverter not to be confused with
                 // IPropertyValueConverter which are the ones most people are creating
                 var properyType = CreateDummyPropertyType(targetDataType.Id, targetDataType.PropertyEditorAlias, contentType);
+
+
+                var source = properyType.ConvertDataToSource(langValue, false);
+                var result = properyType.ConvertSourceToObject(source, false);
+                if (result is T)
+                    return (T) result;
+
+                var convert = result.TryConvertTo<T>();
+                if (convert.Success)
+                    return convert.Result;
+                else
+                    return default(T);
+
                 var converters = PropertyValueConvertersResolver.Current.Converters.ToArray();
 
                 // In umbraco, there are default value converters that try to convert the 
@@ -77,16 +91,31 @@ namespace Our.Umbraco.Vorto
             return defaultValue;
         }
 
-        private static PublishedPropertyType CreateDummyPropertyType(int dataTypeId, string propertyEditorAlias, PublishedContentType contentType)
+        /*private static PublishedPropertyType CreateDummyPropertyType(int dataTypeId, string propertyEditorAlias, PublishedContentType contentType)
         {
             return new PublishedPropertyType(contentType,
                 new PropertyType(new DataTypeDefinition(-1, propertyEditorAlias)
                 {
                     Id = dataTypeId
                 }));
+        }*/
+        /// <summary>
+        /// Creates dummy property type.
+        /// </summary>
+        /// <param name="prop">The property.</param>
+        /// <returns></returns>
+        internal static PublishedPropertyType CreateDummyPropertyType(int dataTypeId, string propertyEditorAlias, PublishedContentType contentType)
+        {
+            // We need to check if `PropertyValueConvertersResolver` exists,
+            // otherwise `PublishedPropertyType` will throw an exception outside of the Umbraco context.; e.g. unit-tests.
+            if (!PropertyValueConvertersResolver.HasCurrent)
+                return null;
+
+            return (PublishedPropertyType) UmbracoContext.Current.Application.ApplicationCache.RequestCache.GetCacheItem("VORTO_" + contentType?.Alias + "_" + dataTypeId, () =>
+                 new PublishedPropertyType(contentType, new PropertyType(new DataTypeDefinition(-1, propertyEditorAlias) { Id = dataTypeId })));
         }
 
-		internal static void CallFilterLanguages(FilterLanguagesEventArgs args)
+        internal static void CallFilterLanguages(FilterLanguagesEventArgs args)
 		{
 			if (FilterLanguages != null)
 				FilterLanguages(null, args);
