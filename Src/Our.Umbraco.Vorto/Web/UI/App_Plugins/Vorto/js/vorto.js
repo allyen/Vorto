@@ -1,4 +1,4 @@
-﻿angular.module("umbraco").controller("Our.Umbraco.PropertyEditors.Vorto.vortoEditor", [
+angular.module("umbraco").controller("Our.Umbraco.PropertyEditors.Vorto.vortoEditor", [
     '$scope',
     '$rootScope',
     'appState',
@@ -25,8 +25,9 @@
             view: ""
         };
 
+        var values = $scope.model.value ? $scope.model.value.values : {};
         $scope.model.value = {
-            values: $.extend({}, $scope.model.value.values),
+            values: $.extend({}, values),
             dtdguid: 0
         };
 
@@ -280,6 +281,8 @@
                         $scope.currentLanguage = $scope.activeLanguage = _.find(languages, function (itm) {
                             return itm.isDefault;
                         });
+                        // Update cookie
+                        $.cookie('vortoActiveLanguage', $scope.currentLanguage.isoCode);
 
                         reSync();
 
