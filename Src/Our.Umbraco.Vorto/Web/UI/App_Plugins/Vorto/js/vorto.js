@@ -282,7 +282,9 @@ angular.module("umbraco").controller("Our.Umbraco.PropertyEditors.Vorto.vortoEdi
                             return itm.isDefault;
                         });
                         // Update cookie
-                        $.cookie('vortoActiveLanguage', $scope.currentLanguage.isoCode);
+                        if (!$.cookie('vortoActiveLanguage')) {
+                            $.cookie('vortoActiveLanguage', $scope.currentLanguage.isoCode);
+                        }
 
                         reSync();
 
