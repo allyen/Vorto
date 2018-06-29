@@ -111,14 +111,13 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 						value.Values[key] = newValue;
 					}
 
-					property.Value = value.SerializeForPersistence();
+					return value.SerializeForPersistence();
 				}
 				catch (Exception ex)
 				{
 					LogHelper.Error<VortoPropertyValueEditor>("Error converting DB value to String", ex);
+                    return null;
 				}
-
-				return base.ConvertDbToString(property, propertyType, dataTypeService);
 			}
 
 			public override object ConvertDbToEditor(Property property, PropertyType propertyType, IDataTypeService dataTypeService)
