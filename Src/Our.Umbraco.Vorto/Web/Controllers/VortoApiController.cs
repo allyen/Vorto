@@ -5,19 +5,17 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Web.Http;
-using AutoMapper;
 using umbraco;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Core.PropertyEditors;
 using Umbraco.Web.Editors;
-using Umbraco.Web.Models.ContentEditing;
 using Umbraco.Web.Mvc;
 using Language = Our.Umbraco.Vorto.Models.Language;
 
 namespace Our.Umbraco.Vorto.Web.Controllers
 {
-	[PluginController("VortoApi")]
+    [PluginController("VortoApi")]
 	public class VortoApiController : UmbracoAuthorizedJsonController
 	{
 		public IEnumerable<object> GetNonVortoDataTypes()
@@ -87,70 +85,75 @@ namespace Our.Umbraco.Vorto.Web.Controllers
 
 		public IEnumerable<object> GetLanguages(string section, int id, int parentId, Guid dtdguid)
 		{
-			var dtd = Services.DataTypeService.GetDataTypeDefinitionById(dtdguid);
-			var preValues = Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtd.Id).PreValuesAsDictionary;
-			var languageSource = preValues.ContainsKey("languageSource") ? preValues["languageSource"].Value : "";
-			var primaryLanguage = preValues.ContainsKey("primaryLanguage") ? preValues["primaryLanguage"].Value : "";
+            var languages = new List<Language>();
+            var primaryLanguage = "";
 
-			var languages = new List<Language>();
+            if (dtdguid != null && dtdguid != Guid.Empty)
+            {
+                var dtd = Services.DataTypeService.GetDataTypeDefinitionById(dtdguid);
+                var preValues = Services.DataTypeService.GetPreValuesCollectionByDataTypeId(dtd.Id).PreValuesAsDictionary;
+                var languageSource = preValues.ContainsKey("languageSource") ? preValues["languageSource"].Value : "";
+                primaryLanguage = preValues.ContainsKey("primaryLanguage") ? preValues["primaryLanguage"].Value : "";
 
-			if (languageSource == "inuse")
-			{
-				var xpath = preValues.ContainsKey("xpath") ? preValues["xpath"].Value : "";
+                if (languageSource == "inuse")
+                {
+                    var xpath = preValues.ContainsKey("xpath") ? preValues["xpath"].Value : "";
 
-				// Grab languages by xpath (only if in content section)
-                if (!string.IsNullOrWhiteSpace(xpath) && section == "content")
-				{
-					xpath = xpath.Replace("$currentPage",
-						string.Format("//*[@id={0} and @isDoc]", id)).Replace("$parentPage",
-							string.Format("//*[@id={0} and @isDoc]", parentId)).Replace("$ancestorOrSelf",
-								string.Format("//*[@id={0} and @isDoc]", id != 0 ? id : parentId));
+                    // Grab languages by xpath (only if in content section)
+                    if (!string.IsNullOrWhiteSpace(xpath) && section == "content")
+                    {
+                        xpath = xpath.Replace("$currentPage",
+                            string.Format("//*[@id={0} and @isDoc]", id)).Replace("$parentPage",
+                                string.Format("//*[@id={0} and @isDoc]", parentId)).Replace("$ancestorOrSelf",
+                                    string.Format("//*[@id={0} and @isDoc]", id != 0 ? id : parentId));
 
-					// Lookup language nodes
-					var nodeIds = uQuery.GetNodesByXPath(xpath).Select(x => x.Id).ToArray();
-					if (nodeIds.Any())
-					{
-						var db = ApplicationContext.Current.DatabaseContext.Database;
-						languages.AddRange(db.Query<string>(
-							string.Format(
-								"SELECT DISTINCT [languageISOCode] FROM [umbracoLanguage] JOIN [umbracoDomains] ON [umbracoDomains].[domainDefaultLanguage] = [umbracoLanguage].[id] WHERE [umbracoDomains].[domainRootStructureID] in ({0})",
-								string.Join(",", nodeIds)))
-							.Select(CultureInfo.GetCultureInfo)
-							.Select(x => new Language
-							{
-								IsoCode = x.Name,
-								Name = x.DisplayName,
-								NativeName = x.NativeName
-							}));
-					}
-				}
-				else
-				{
-					// No language node xpath so just return a list of all languages in use
-					var db = ApplicationContext.Current.DatabaseContext.Database;
-					languages.AddRange(
-						db.Query<string>(
-							"SELECT [languageISOCode] FROM [umbracoLanguage] WHERE EXISTS(SELECT 1 FROM [umbracoDomains] WHERE [umbracoDomains].[domainDefaultLanguage] = [umbracoLanguage].[id])")
-							.Select(CultureInfo.GetCultureInfo)
-							.Select(x => new Language
-							{
-								IsoCode = x.Name,
-								Name = x.DisplayName,
-								NativeName = x.NativeName
-							}));
-				}
-			}
-			else
-			{
-				languages.AddRange(umbraco.cms.businesslogic.language.Language.GetAllAsList()
-					.Select(x => CultureInfo.GetCultureInfo(x.CultureAlias))
-					.Select(x => new Language
-					{
-						IsoCode = x.Name,
-						Name = x.DisplayName,
-						NativeName = x.NativeName
-					}));
-			}
+                        // Lookup language nodes
+                        var nodeIds = uQuery.GetNodesByXPath(xpath).Select(x => x.Id).ToArray();
+                        if (nodeIds.Any())
+                        {
+                            var db = ApplicationContext.Current.DatabaseContext.Database;
+                            languages.AddRange(db.Query<string>(
+                                string.Format(
+                                    "SELECT DISTINCT [languageISOCode] FROM [umbracoLanguage] JOIN [umbracoDomains] ON [umbracoDomains].[domainDefaultLanguage] = [umbracoLanguage].[id] WHERE [umbracoDomains].[domainRootStructureID] in ({0})",
+                                    string.Join(",", nodeIds)))
+                                .Select(CultureInfo.GetCultureInfo)
+                                .Select(x => new Language
+                                {
+                                    IsoCode = x.Name,
+                                    Name = x.DisplayName,
+                                    NativeName = x.NativeName
+                                }));
+                        }
+                    }
+                    else
+                    {
+                        // No language node xpath so just return a list of all languages in use
+                        var db = ApplicationContext.Current.DatabaseContext.Database;
+                        languages.AddRange(
+                            db.Query<string>(
+                                "SELECT [languageISOCode] FROM [umbracoLanguage] WHERE EXISTS(SELECT 1 FROM [umbracoDomains] WHERE [umbracoDomains].[domainDefaultLanguage] = [umbracoLanguage].[id])")
+                                .Select(CultureInfo.GetCultureInfo)
+                                .Select(x => new Language
+                                {
+                                    IsoCode = x.Name,
+                                    Name = x.DisplayName,
+                                    NativeName = x.NativeName
+                                }));
+                    }
+                }
+            }
+
+            if (dtdguid == null || !languages.Any())
+            {
+                languages.AddRange(umbraco.cms.businesslogic.language.Language.GetAllAsList()
+                    .Select(x => CultureInfo.GetCultureInfo(x.CultureAlias))
+                    .Select(x => new Language
+                    {
+                        IsoCode = x.Name,
+                        Name = x.DisplayName,
+                        NativeName = x.NativeName
+                    }));
+            }
 
 			// Raise event to allow for further filtering
 			var args = new FilterLanguagesEventArgs

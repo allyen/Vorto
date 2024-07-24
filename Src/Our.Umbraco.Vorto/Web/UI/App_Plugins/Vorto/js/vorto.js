@@ -274,7 +274,7 @@ angular.module("umbraco").controller("Our.Umbraco.PropertyEditors.Vorto.vortoEdi
                 $scope.model.value.dtdguid = dtdguid;
 
                 // Load the languages (this will trigger everything else to bind)
-                vortoResources.getLanguages(currentSection, editorState.current.id, editorState.current.parentId, dtdguid)
+                vortoResources.getLanguages(currentSection, editorState.current.id, editorState.current.parentId, dtdguid ? dtdguid : "00000000-0000-0000-0000-000000000000")
                     .then(function (languages) {
 
                         $scope.languages = languages;
