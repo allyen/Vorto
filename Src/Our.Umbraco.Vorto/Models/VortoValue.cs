@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Our.Umbraco.Vorto.Models
 {
@@ -17,7 +16,7 @@ namespace Our.Umbraco.Vorto.Models
 
         public string SerializeForPersistence()
         {
-            var json = JObject.Parse(JsonConvert.SerializeObject(this, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+            var json = JObject.Parse(JsonConvert.SerializeObject(this, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore, MaxDepth = 128 }));
             var propertiesToRemove = new String[] { "dtdId" };
 
             json.Descendants().OfType<JProperty>()

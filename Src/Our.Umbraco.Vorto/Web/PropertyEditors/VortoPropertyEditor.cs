@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ClientDependency.Core;
-using log4net.Repository.Hierarchy;
+﻿using ClientDependency.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Our.Umbraco.Vorto.Helpers;
 using Our.Umbraco.Vorto.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
@@ -97,7 +94,8 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 
 				try
 				{
-					var value = JsonConvert.DeserializeObject<VortoValue>(property.Value.ToString());
+                    var settings = new JsonSerializerSettings { MaxDepth = 128 };
+                    var value = JsonConvert.DeserializeObject<VortoValue>(property.Value.ToString(), settings);
 
 					var dtd = VortoHelper.GetTargetDataTypeDefinition(propertyType.DataTypeDefinitionId);
 					var propEditor = PropertyEditorResolver.Current.GetByAlias(dtd.PropertyEditorAlias);
@@ -127,7 +125,8 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 
 				try
 				{
-					var value = JsonConvert.DeserializeObject<VortoValue>(property.Value.ToString());
+                    var settings = new JsonSerializerSettings { MaxDepth = 128 };
+                    var value = JsonConvert.DeserializeObject<VortoValue>(property.Value.ToString(), settings);
 
                     var dtd = VortoHelper.GetTargetDataTypeDefinition(propertyType.DataTypeDefinitionId);
 					var propEditor = PropertyEditorResolver.Current.GetByAlias(dtd.PropertyEditorAlias);
@@ -141,7 +140,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 						value.Values[key] = (newValue == null) ? null : JToken.FromObject(newValue);
 					}
 
-					property.Value = JsonConvert.SerializeObject(value);
+                    property.Value = JsonConvert.SerializeObject(value, settings);
 				}
 				catch (Exception ex)
 				{
@@ -158,7 +157,8 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 
 				try
 				{
-					var value = JsonConvert.DeserializeObject<VortoValue>(editorValue.Value.ToString());
+                    var settings = new JsonSerializerSettings { MaxDepth = 128 };
+                    var value = JsonConvert.DeserializeObject<VortoValue>(editorValue.Value.ToString(), settings);
 
                     var dataType = JsonConvert.DeserializeObject<DataTypeInfo>(editorValue.PreValues.FormatAsDictionary()["dataType"].Value);
                     var dtd = ApplicationContext.Current.Services.DataTypeService.GetDataTypeDefinitionById(dataType.Guid);
@@ -173,7 +173,7 @@ namespace Our.Umbraco.Vorto.Web.PropertyEditors
 						value.Values[key] = (newValue == null) ? null : JToken.FromObject(newValue);
 					}
 
-					return JsonConvert.SerializeObject(value);
+                    return JsonConvert.SerializeObject(value, settings);
 				}
 				catch (Exception ex)
 				{
